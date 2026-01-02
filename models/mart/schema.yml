@@ -5,10 +5,9 @@ models:
   - name: dim_customer
     description: >
       Dimension table containing one record per customer.
-      Used for slicing and filtering analytics by customer attributes.
     columns:
       - name: customer_id
-        description: Unique identifier for each customer.
+        description: Unique identifier for customer.
         tests:
           - not_null
           - unique
@@ -17,94 +16,72 @@ models:
         description: Name of the customer.
 
       - name: signup_date
-        description: Date when the customer signed up.
+        description: Customer signup date.
 
       - name: country
-        description: Country of the customer.
+        description: Customer country.
 
   - name: fact_subscription
     description: >
-      Fact table containing subscription-level information including
-      subscription status and churn indicator.
-      Used for churn and subscription lifecycle analysis.
+      Subscription-level fact table used for churn analysis.
     columns:
       - name: subscription_id
-        description: Unique identifier for each subscription.
+        description: Unique subscription identifier.
         tests:
           - not_null
           - unique
 
       - name: customer_id
-        description: Identifier of the customer owning the subscription.
+        description: Customer identifier.
         tests:
           - not_null
 
-      - name: plan_name
-        description: Subscription plan type (Basic, Premium, Pro).
-
-      - name: start_date
-        description: Subscription start date.
-
-      - name: cancel_date
-        description: Subscription cancellation date, if cancelled.
-
       - name: status
-        description: Current subscription status.
+        description: Subscription status.
         tests:
           - accepted_values:
-              values: ['ACTIVE', 'CANCELLED']
+              arguments:
+                values: ['ACTIVE', 'CANCELLED']
 
       - name: is_churned
-        description: >
-          Churn indicator derived from subscription status.
-          1 = churned, 0 = active.
+        description: Churn indicator flag.
         tests:
           - accepted_values:
-              values: [0, 1]
+              arguments:
+                values: [0, 1]
 
   - name: fact_revenue_mrr
     description: >
-      Monthly recurring revenue (MRR) and annual recurring revenue (ARR)
-      calculated from successful subscription payments.
-      Used for revenue trend and plan-level revenue analysis.
+      Monthly and annual recurring revenue metrics.
     columns:
       - name: revenue_month
-        description: Month for which revenue is calculated.
+        description: Revenue month.
         tests:
           - not_null
 
-      - name: plan_name
-        description: Subscription plan associated with the revenue.
-
-      - name: active_subscriptions_paid
-        description: Count of distinct subscriptions that made successful payments.
-
       - name: mrr
-        description: Monthly Recurring Revenue.
+        description: Monthly recurring revenue.
         tests:
           - not_null
 
       - name: arr
-        description: Annual Recurring Revenue (MRR * 12).
+        description: Annual recurring revenue.
 
   - name: fact_payment_health
     description: >
-      Monthly payment health metrics including total payments,
-      failed payments, and failure rate percentage.
-      Used to monitor revenue reliability and payment system health.
+      Monthly payment success and failure metrics.
     columns:
       - name: payment_month
-        description: Month in which payment attempts occurred.
+        description: Payment month.
         tests:
           - not_null
 
       - name: total_payments
-        description: Total number of payment attempts in the month.
+        description: Total payment attempts.
         tests:
           - not_null
 
-      - name: failed_payments
-        description: Number of failed payment attempts in the month.
-
       - name: failure_rate_pct
-        description: Percentage of failed payments for the month.
+        description: Payment failure percentage.
+        tests:
+          - not_null
