@@ -1,0 +1,110 @@
+version: 2
+
+models:
+
+  - name: dim_customer
+    description: >
+      Dimension table containing one record per customer.
+      Used for slicing and filtering analytics by customer attributes.
+    columns:
+      - name: customer_id
+        description: Unique identifier for each customer.
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_name
+        description: Name of the customer.
+
+      - name: signup_date
+        description: Date when the customer signed up.
+
+      - name: country
+        description: Country of the customer.
+
+  - name: fact_subscription
+    description: >
+      Fact table containing subscription-level information including
+      subscription status and churn indicator.
+      Used for churn and subscription lifecycle analysis.
+    columns:
+      - name: subscription_id
+        description: Unique identifier for each subscription.
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: Identifier of the customer owning the subscription.
+        tests:
+          - not_null
+
+      - name: plan_name
+        description: Subscription plan type (Basic, Premium, Pro).
+
+      - name: start_date
+        description: Subscription start date.
+
+      - name: cancel_date
+        description: Subscription cancellation date, if cancelled.
+
+      - name: status
+        description: Current subscription status.
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'CANCELLED']
+
+      - name: is_churned
+        description: >
+          Churn indicator derived from subscription status.
+          1 = churned, 0 = active.
+        tests:
+          - accepted_values:
+              values: [0, 1]
+
+  - name: fact_revenue_mrr
+    description: >
+      Monthly recurring revenue (MRR) and annual recurring revenue (ARR)
+      calculated from successful subscription payments.
+      Used for revenue trend and plan-level revenue analysis.
+    columns:
+      - name: revenue_month
+        description: Month for which revenue is calculated.
+        tests:
+          - not_null
+
+      - name: plan_name
+        description: Subscription plan associated with the revenue.
+
+      - name: active_subscriptions_paid
+        description: Count of distinct subscriptions that made successful payments.
+
+      - name: mrr
+        description: Monthly Recurring Revenue.
+        tests:
+          - not_null
+
+      - name: arr
+        description: Annual Recurring Revenue (MRR * 12).
+
+  - name: fact_payment_health
+    description: >
+      Monthly payment health metrics including total payments,
+      failed payments, and failure rate percentage.
+      Used to monitor revenue reliability and payment system health.
+    columns:
+      - name: payment_month
+        description: Month in which payment attempts occurred.
+        tests:
+          - not_null
+
+      - name: total_payments
+        description: Total number of payment attempts in the month.
+        tests:
+          - not_null
+
+      - name: failed_payments
+        description: Number of failed payment attempts in the month.
+
+      - name: failure_rate_pct
+        description: Percentage of failed payments for the month.

@@ -1,0 +1,56 @@
+version: 2
+
+models:
+
+  - name: int_mrr_monthly
+    description: >
+      Intermediate model that calculates Monthly Recurring Revenue (MRR)
+      and Annual Recurring Revenue (ARR) from successful subscription payments.
+      This model applies core revenue business logic and is reused by mart models.
+    columns:
+      - name: revenue_month
+        description: Month for which revenue is calculated.
+        tests:
+          - not_null
+
+      - name: plan_name
+        description: Subscription plan associated with the revenue.
+        tests:
+          - not_null
+
+      - name: active_subscriptions_paid
+        description: Number of distinct subscriptions that made successful payments.
+        tests:
+          - not_null
+
+      - name: mrr
+        description: Monthly Recurring Revenue calculated from successful payments.
+        tests:
+          - not_null
+
+      - name: arr
+        description: Annual Recurring Revenue derived as MRR multiplied by 12.
+
+  - name: int_payment_failure_monthly
+    description: >
+      Intermediate model that calculates monthly payment health metrics,
+      including total payment attempts, failed payments, and failure rate.
+      Used to monitor revenue reliability and payment system issues.
+    columns:
+      - name: payment_month
+        description: Month in which payment attempts occurred.
+        tests:
+          - not_null
+
+      - name: total_payments
+        description: Total number of payment attempts in the month.
+        tests:
+          - not_null
+
+      - name: failed_payments
+        description: Number of failed payment attempts in the month.
+
+      - name: failure_rate_pct
+        description: Percentage of failed payments for the month.
+        tests:
+          - not_null
